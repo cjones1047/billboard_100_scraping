@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import requests
 import os
 import dotenv
+# import pprint
 
 
 def get_users_date():
@@ -27,24 +28,35 @@ def get_billboard_100(this_date):
     return song_list
 
 
-def authenticate_spotify():
+def add_songs_to_playlist(song_title_list):
+    import spotipy
+    from spotipy.oauth2 import SpotifyOAuth
+
     dotenv.load_dotenv()
     spotify_client_id = os.getenv("SPOTIFY_CLIENT_ID")
     spotify_secret = os.getenv("SPOTIFY_SECRET")
     spotify_redirect_uri = os.getenv("SPOTIFY_REDIRECT_URI")
 
-    import spotipy
-    from spotipy.oauth2 import SpotifyOAuth
-
     scope = "playlist-modify-private"
-
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=spotify_client_id,
                                                    client_secret=spotify_secret,
                                                    scope=scope,
                                                    redirect_uri=spotify_redirect_uri))
-
     current_user = sp.current_user()
-    print(current_user)
+
+    song_uris = []
+    for song in song_title_list:
+        query_string = f"track: {song}"
+        song_response = sp.search(q=query_string, type="track", limit=1)
+        # pprint.pprint(song_response, indent=4)
+        # print(song_response['tracks']['items'][0]['id'])
+        try:
+            song_to_add = song_response['tracks']['items'][0]['id']
+            song_uris.append(song_to_add)
+        except IndexError:
+            pass
+
+    print(song_uris)
 
 
 chosen_date = input("Which date do you want to travel back to? Type in YYYY-MM-DD format:\n")
@@ -57,5 +69,5 @@ while True:
     else:
         break
 
-song_title_list = get_billboard_100(this_date=chosen_date)
-authenticate_spotify()
+billboard_100_song_list = get_billboard_100(this_date=chosen_date)
+add_songs_to_playlist(song_title_list=billboard_100_song_list)
