@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup
 import requests
 import os
 import dotenv
+
+
 # import pprint
 
 
@@ -43,6 +45,7 @@ def add_songs_to_playlist(song_title_list):
                                                    scope=scope,
                                                    redirect_uri=spotify_redirect_uri))
     current_user = sp.current_user()
+    # print(current_user)
 
     song_uris = []
     for song in song_title_list:
@@ -56,7 +59,14 @@ def add_songs_to_playlist(song_title_list):
         except IndexError:
             pass
 
-    print(song_uris)
+    # print(song_uris)
+
+    created_playlist = sp.user_playlist_create(user=current_user['id'], name=f'{chosen_date} Billboard 100',
+                                               public=False,
+                                               description=f'All the Billboard 100 hits from {chosen_date}')
+
+    print(created_playlist)
+    # sp.user_playlist_add_tracks(user=current_user['id'], playlist_id, tracks, position=None)
 
 
 chosen_date = input("Which date do you want to travel back to? Type in YYYY-MM-DD format:\n")
