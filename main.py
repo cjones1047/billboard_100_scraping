@@ -1,6 +1,8 @@
 import datetime
 from bs4 import BeautifulSoup
 import requests
+import os
+import dotenv
 
 
 def get_users_date():
@@ -20,9 +22,17 @@ def get_billboard_100(this_date):
                      "lrv-u-font-size-16 u-line-height-125 u-line-height-normal@mobile-max a-truncate-ellipsis "
                      "u-max-width-330 u-max-width-230@tablet-only")]
     song_element_list = billboard_100_page.find_all(name="h3", class_=song_classes)
-    song_title_list = [song_el.text.replace('\n', '').replace('\t', '') for song_el in song_element_list]
-    print(song_title_list)
-    print(len(song_title_list))
+    song_list = [song_el.text.replace('\n', '').replace('\t', '') for song_el in song_element_list]
+    print(f"Number of songs: {len(song_list)}")
+    return song_list
+
+
+def create_spotify_playlist():
+    dotenv.load_dotenv()
+    spotify_client_id = os.getenv("SPOTIFY_CLIENT_ID")
+    spotify_secret = os.getenv("SPOTIFY_SECRET")
+    print(spotify_client_id)
+    print(spotify_secret)
 
 
 chosen_date = input("Which date do you want to travel back to? Type in YYYY-MM-DD format:\n")
@@ -35,4 +45,5 @@ while True:
     else:
         break
 
-get_billboard_100(this_date=chosen_date)
+song_title_list = get_billboard_100(this_date=chosen_date)
+create_spotify_playlist()
