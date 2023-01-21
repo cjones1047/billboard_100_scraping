@@ -27,12 +27,24 @@ def get_billboard_100(this_date):
     return song_list
 
 
-def create_spotify_playlist():
+def authenticate_spotify():
     dotenv.load_dotenv()
     spotify_client_id = os.getenv("SPOTIFY_CLIENT_ID")
     spotify_secret = os.getenv("SPOTIFY_SECRET")
-    print(spotify_client_id)
-    print(spotify_secret)
+    spotify_redirect_uri = os.getenv("SPOTIFY_REDIRECT_URI")
+
+    import spotipy
+    from spotipy.oauth2 import SpotifyOAuth
+
+    scope = "playlist-modify-private"
+
+    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=spotify_client_id,
+                                                   client_secret=spotify_secret,
+                                                   scope=scope,
+                                                   redirect_uri=spotify_redirect_uri))
+
+    current_user = sp.current_user()
+    print(current_user)
 
 
 chosen_date = input("Which date do you want to travel back to? Type in YYYY-MM-DD format:\n")
@@ -46,4 +58,4 @@ while True:
         break
 
 song_title_list = get_billboard_100(this_date=chosen_date)
-create_spotify_playlist()
+authenticate_spotify()
