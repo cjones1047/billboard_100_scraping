@@ -39,7 +39,7 @@ def add_songs_to_playlist(song_title_list):
     spotify_secret = os.getenv("SPOTIFY_SECRET")
     spotify_redirect_uri = os.getenv("SPOTIFY_REDIRECT_URI")
 
-    scope = "playlist-modify-private"
+    scope = "playlist-modify-public"
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=spotify_client_id,
                                                    client_secret=spotify_secret,
                                                    scope=scope,
@@ -48,7 +48,12 @@ def add_songs_to_playlist(song_title_list):
     # print(current_user)
 
     song_uris = []
+    seconds = 1
     for song in song_title_list:
+        if seconds > 3:
+            seconds = 0
+        seconds += 1
+        print(f"\rCompiling song list{'.' * seconds}", end=" "*20)
         query_string = f"track: {song}"
         song_response = sp.search(q=query_string, type="track", limit=1)
         # pprint.pprint(song_response, indent=4)
@@ -62,11 +67,11 @@ def add_songs_to_playlist(song_title_list):
     # print(song_uris)
 
     created_playlist = sp.user_playlist_create(user=current_user['id'], name=f'{chosen_date} Billboard 100',
-                                               public=False,
+                                               public=True,
                                                description=f'All the Billboard 100 hits from {chosen_date}')
 
     print(created_playlist)
-    # sp.user_playlist_add_tracks(user=current_user['id'], playlist_id, tracks, position=None)
+    sp.playlist_add_items(playlist_id=created_playlist['id'], items=song_uris)
 
 
 chosen_date = input("Which date do you want to travel back to? Type in YYYY-MM-DD format:\n")
